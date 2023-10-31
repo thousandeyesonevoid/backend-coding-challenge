@@ -8,8 +8,9 @@ endpoint to verify the server is up and responding and a search endpoint
 providing a search across all public Gists for a given Github account.
 """
 
-import requests
 from flask import Flask, jsonify, request
+
+from github_service import fetch_and_search 
 
 
 app = Flask(__name__)
@@ -19,25 +20,6 @@ app = Flask(__name__)
 def ping():
     """Provide a static response to a simple GET request."""
     return "pong"
-
-
-def gists_for_user(username: str):
-    """Provides the list of gist metadata for a given user.
-
-    This abstracts the /users/:username/gist endpoint from the Github API.
-    See https://developer.github.com/v3/gists/#list-a-users-gists for
-    more information.
-
-    Args:
-        username (string): the user to query gists for
-
-    Returns:
-        The dict parsed from the json response from the Github API.  See
-        the above URL for details of the expected structure.
-    """
-    gists_url = 'https://api.github.com/users/{username}/gists'.format(username=username)
-    response = requests.get(gists_url)
-    return response.json()
 
 
 @app.route("/api/v1/search", methods=['POST'])
@@ -54,20 +36,12 @@ def search():
     """
     post_data = request.get_json()
 
-    username = post_data['username']
-    pattern = post_data['pattern']
+    username = post_data.get('username')
+    pattern = post_data.get('pattern')
 
-    result = {}
-    gists = gists_for_user(username)
-
-    for gist in gists:
-        # TODO: Fetch each gist and check for the pattern
-        pass
-
-    result['status'] = 'success'
+    result = fetch_and_search(username=username, pattern=pattern)
     result['username'] = username
     result['pattern'] = pattern
-    result['matches'] = []
 
     return jsonify(result)
 
