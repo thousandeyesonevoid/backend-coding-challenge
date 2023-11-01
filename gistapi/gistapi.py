@@ -10,7 +10,7 @@ providing a search across all public Gists for a given Github account.
 
 from flask import Flask, jsonify, request
 
-from github_service import fetch_and_search 
+from github_service import fetch_and_search
 
 
 app = Flask(__name__)
@@ -22,7 +22,7 @@ def ping():
     return "pong"
 
 
-@app.route("/api/v1/search", methods=['POST'])
+@app.route("/api/v1/search", methods=["POST"])
 def search():
     """Provides matches for a single pattern across a single users gists.
 
@@ -36,15 +36,15 @@ def search():
     """
     post_data = request.get_json()
 
-    username = post_data.get('username')
-    pattern = post_data.get('pattern')
+    username = post_data.get("username")
+    pattern = post_data.get("pattern")
 
     result = fetch_and_search(username=username, pattern=pattern)
-    result['username'] = username
-    result['pattern'] = pattern
+    result["username"] = username
+    result["pattern"] = pattern
 
     return jsonify(result)
 
 
-if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=9876)
+if __name__ == "__main__":
+    app.run(debug=True, host="0.0.0.0", port=9876)
