@@ -1,4 +1,5 @@
 import re
+import requests
 
 from api_service import fetch_gists_for_username, fetch_gist_details
 
@@ -7,7 +8,15 @@ def fetch_and_search(username: str, pattern: str):
     """
     handles the fetch and search pattern calls
     """
-    gists = fetch_all_gist_contents(username=username)
+    try:
+        gists = fetch_all_gist_contents(username=username)
+    except requests.exceptions.RequestException as _e:
+        # push to an error monitoring system like Rollbar or Sentry here.
+        return {
+            "success": False,
+            "info": "The github api is facing server issues. please check back later.",
+            "matches": [],
+        }
     if not gists:
         return {
             "success": False,
